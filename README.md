@@ -1,8 +1,8 @@
-# 🎭 playwright-utils
+# 🎭 playwright-tools
 
 A comprehensive collection of utilities for Playwright testing that simplify common testing patterns and enhance your automation workflow.
 
-[![npm version](https://badge.fury.io/js/playwright-utils.svg)](https://badge.fury.io/js/playwright-utils)
+[![npm version](https://badge.fury.io/js/playwright-tools.svg)](https://badge.fury.io/js/playwright-tools)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
 ---
@@ -31,7 +31,7 @@ A comprehensive collection of utilities for Playwright testing that simplify com
 ## 📦 Installation
 
 ```bash
-npm install playwright-utils
+npm install playwright-tools
 ```
 
 **Peer Dependency**: This package requires `@playwright/test` to be installed in your project.
@@ -46,13 +46,13 @@ You can import utilities individually for better tree-shaking:
 
 ```typescript
 // Import specific modules
-import { safeClick, safeFill } from "playwright-utils/interactions";
-import { waitForElements, elementExists } from "playwright-utils/element-queries";
-import { takeTimestampedScreenshot } from "playwright-utils/screenshots";
-import { retryAction } from "playwright-utils/retry";
+import { safeClick, safeFill } from "playwright-tools/interactions";
+import { waitForElements, elementExists } from "playwright-tools/element-queries";
+import { takeTimestampedScreenshot } from "playwright-tools/screenshots";
+import { retryAction } from "playwright-tools/retry";
 
 // Or import everything
-import * as pwUtils from "playwright-utils";
+import * as pwUtils from "playwright-tools";
 ```
 
 ---
@@ -62,7 +62,7 @@ import * as pwUtils from "playwright-utils";
 ### Basic Element Interactions
 
 ```typescript
-import { safeClick, safeFill, fillForm } from "playwright-utils";
+import { safeClick, safeFill, fillForm } from "playwright-tools";
 
 // Safe click with automatic wait for visibility
 await safeClick(page.locator("#submit-button"));
@@ -88,7 +88,7 @@ import {
   getAttributesFromElements,
   isElementEnabled,
   extractElementData,
-} from "playwright-utils";
+} from "playwright-tools";
 
 // Check if element exists without throwing
 const exists = await elementExists(page.locator("#optional-element"));
@@ -116,7 +116,7 @@ const elementData = await extractElementData(page.locator("#main-button"), {
 ### Navigation & Page Utilities
 
 ```typescript
-import { safeNavigate, waitForPageLoad, waitForPageIdle, takeTimestampedScreenshot } from "playwright-utils";
+import { safeNavigate, waitForPageLoad, waitForPageIdle, takeTimestampedScreenshot } from "playwright-tools";
 
 // Safe navigation with URL validation
 await safeNavigate(page, "/dashboard", {
@@ -141,7 +141,7 @@ const screenshotPath = await takeTimestampedScreenshot(page, "login-page");
 ### Advanced Interactions
 
 ```typescript
-import { pressKeyCombo, dragAndDrop, handleFileUpload, scrollToElement } from "playwright-utils";
+import { pressKeyCombo, dragAndDrop, handleFileUpload, scrollToElement } from "playwright-tools";
 
 // Keyboard shortcuts
 await pressKeyCombo(page, "Control+A"); // Select all
@@ -170,7 +170,7 @@ await scrollToElement(page.locator("#footer"), {
 ### Network & Storage
 
 ```typescript
-import { waitForNetworkRequest, handleStorage } from "playwright-utils";
+import { waitForNetworkRequest, handleStorage } from "playwright-tools";
 
 // Wait for specific API call
 const response = await waitForNetworkRequest(page, "/api/users", {
@@ -189,7 +189,7 @@ await handleStorage(page, "clear"); // Clear all localStorage
 ### Accessibility Testing
 
 ```typescript
-import { checkAccessibility } from "playwright-utils";
+import { checkAccessibility } from "playwright-tools";
 
 // Check accessibility properties
 const a11y = await checkAccessibility(page.getByRole("button"), {
@@ -206,7 +206,7 @@ expect(a11y.focusable).toBe(true);
 ### Table Data Extraction
 
 ```typescript
-import { extractTableData } from "playwright-utils";
+import { extractTableData } from "playwright-tools";
 
 // Extract data from tables
 const tableData = await extractTableData(page.locator("table"), {
@@ -218,7 +218,7 @@ const tableData = await extractTableData(page.locator("table"), {
 ### Dialog Handling
 
 ```typescript
-import { handleDialog } from "playwright-utils";
+import { handleDialog } from "playwright-tools";
 
 // Handle confirmation dialogs
 const dialogInfo = await handleDialog(page, () => page.getByRole("button", { name: "Delete" }).click(), {
@@ -230,7 +230,7 @@ const dialogInfo = await handleDialog(page, () => page.getByRole("button", { nam
 ### Retry & Error Handling
 
 ```typescript
-import { retryAction, waitForAnyCondition } from "playwright-utils";
+import { retryAction, waitForAnyCondition } from "playwright-tools";
 
 // Retry flaky operations with exponential backoff
 const result = await retryAction(
@@ -262,7 +262,7 @@ import {
   waitForTextInAnyElement,
   testDispatcher,
   measureTime,
-} from "playwright-utils";
+} from "playwright-tools";
 
 // Assert multiple elements are visible sequentially
 await expectElementsToBeVisible([page.locator("#header"), page.locator("#footer"), page.locator("#sidebar")]);
@@ -296,7 +296,7 @@ const { result, duration } = await measureTime(() => page.goto("/slow-page"), "p
 ### Page Objects & Test Data
 
 ```typescript
-import { createPageObject, createTestDataFactory } from "playwright-utils";
+import { createPageObject, createTestDataFactory } from "playwright-tools";
 
 // Create reusable page object
 const loginPage = createPageObject(page, "/login");
@@ -436,7 +436,7 @@ const futureDate = dataFactory.futureDate(30); // 30 days from now
 
 ```typescript
 import { test, expect } from "@playwright/test";
-import { safeNavigate, waitForPageIdle, takeTimestampedScreenshot, expectAll, retryAction } from "playwright-utils";
+import { safeNavigate, waitForPageIdle, takeTimestampedScreenshot, expectAll, retryAction } from "playwright-tools";
 
 test("Complete user workflow", async ({ page }) => {
   // Navigate safely with validation
@@ -475,7 +475,7 @@ test("Complete user workflow", async ({ page }) => {
 ### Data-Driven Testing
 
 ```typescript
-import { testDispatcher, createTestDataFactory } from "playwright-utils";
+import { testDispatcher, createTestDataFactory } from "playwright-tools";
 
 const dataFactory = createTestDataFactory();
 
@@ -514,7 +514,7 @@ activeTests.forEach((testCase) => {
 ### Page Object Pattern Enhancement
 
 ```typescript
-import { createPageObject } from "playwright-utils";
+import { createPageObject } from "playwright-tools";
 
 class LoginPage {
   private pageObject;
@@ -585,7 +585,7 @@ export default defineConfig({
 ### Error Handling Best Practices
 
 ```typescript
-import { retryAction, elementExists, safeClick } from "playwright-utils";
+import { retryAction, elementExists, safeClick } from "playwright-tools";
 
 // Always check element existence for optional elements
 const hasNotification = await elementExists(page.locator(".notification"));
@@ -607,7 +607,7 @@ const apiData = await retryAction(
 ### Performance Optimization
 
 ```typescript
-import { expectAll, waitForElements } from "playwright-utils";
+import { expectAll, waitForElements } from "playwright-tools";
 
 // ✅ Good: Concurrent operations
 await Promise.all([
@@ -634,7 +634,7 @@ await Promise.all([
 await page.locator("#button").waitFor({ state: "visible" });
 await page.locator("#button").click();
 
-// After (playwright-utils)
+// After (playwright-tools)
 await safeClick(page.locator("#button"));
 ```
 
@@ -707,7 +707,7 @@ Feel free to reach out to us:
 - 💼 **LinkedIn**: [jaktestowac.pl](https://www.linkedin.com/company/jaktestowac/)
 - 💬 **Discord**: [Polish Playwright Community](https://discord.gg/mUAqQ7FUaZ)
 - 📧 **Support**: Check our website for contact details
-- 🐛 **Issues**: [GitHub Issues](https://github.com/jaktestowac/playwright-utils/issues)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/jaktestowac/playwright-tools/issues)
 
 ---
 
@@ -717,7 +717,7 @@ If you found this package helpful:
 
 - ⭐ **Star this repository** to show your support
 - 🔄 **Share with your team** to help spread knowledge about advanced Playwright testing patterns
-- 🗣️ **Tell the community** about your experience with playwright-utils
+- 🗣️ **Tell the community** about your experience with playwright-tools
 - 💝 **Contribute** by submitting issues or pull requests
 
 ---
@@ -735,8 +735,8 @@ _Built with 💚❤️ for the Playwright and testing automation community_
 <!-- Badges for additional credibility -->
 <div align="center">
 
-[![GitHub stars](https://img.shields.io/github/stars/jaktestowac/playwright-utils.svg?style=social&label=Star)](https://github.com/jaktestowac/playwright-utils)
-[![GitHub forks](https://img.shields.io/github/forks/jaktestowac/playwright-utils.svg?style=social&label=Fork)](https://github.com/jaktestowac/playwright-utils/fork)
-[![GitHub issues](https://img.shields.io/github/issues/jaktestowac/playwright-utils.svg)](https://github.com/jaktestowac/playwright-utils/issues)
+[![GitHub stars](https://img.shields.io/github/stars/jaktestowac/playwright-tools.svg?style=social&label=Star)](https://github.com/jaktestowac/playwright-tools)
+[![GitHub forks](https://img.shields.io/github/forks/jaktestowac/playwright-tools.svg?style=social&label=Fork)](https://github.com/jaktestowac/playwright-tools/fork)
+[![GitHub issues](https://img.shields.io/github/issues/jaktestowac/playwright-tools.svg)](https://github.com/jaktestowac/playwright-tools/issues)
 
 </div>

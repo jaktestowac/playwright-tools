@@ -1,5 +1,5 @@
 {
-  "name": "playwright-utils",
+  "name": "playwright-tools",
   "version": "0.0.2",
   "description": "A collection of utilities for Playwright testing",
   "main": "dist/index.js",
@@ -97,9 +97,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jaktestowac/playwright-utils.git"
+    "url": "git+https://github.com/jaktestowac/playwright-tools.git"
   },
-  "homepage": "https://github.com/jaktestowac/playwright-utils",
+  "homepage": "https://github.com/jaktestowac/playwright-tools",
   "scripts": {
     "build": "tsup",
     "prepare": "tsup",
