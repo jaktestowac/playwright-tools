@@ -1,6 +1,6 @@
 import { Page, Locator } from "@playwright/test";
 import { safeNavigate, waitForPageIdle } from "./navigation";
-import { takeTimestampedScreenshot, debugScreenshot } from "./screenshots";
+import { takeTimestampedScreenshot, debugScreenshot as _debugScreenshot } from "./screenshots";
 import { measureTime, waitForTextInAnyElement, waitForAnyCondition } from "./waiting";
 import { safeClick, safeFill, fillForm } from "./interactions";
 import {
@@ -18,7 +18,7 @@ import { handleStorage } from "./storage";
 import { waitForNetworkRequest } from "./network";
 import { handleDialog } from "./dialogs";
 import { extractTableData } from "./tables";
-import { pressKeyCombo, dragAndDrop, handleFileUpload, scrollToElement } from "./advanced-interactions";
+import { pressKeyCombo, dragAndDrop, handleFileUpload } from "./advanced-interactions";
 
 export interface PageObjectOptions {
   /** Default timeout for operations (default: 30000ms) */
@@ -194,18 +194,6 @@ export function createPageObject(page: Page, baseUrl: string, options: PageObjec
       return pressKeyCombo(page, keys, keyOptions);
     },
 
-    async scrollToElement(
-      locator: Locator,
-      scrollOptions?: {
-        behavior?: "auto" | "smooth";
-        block?: "start" | "center" | "end" | "nearest";
-        inline?: "start" | "center" | "end" | "nearest";
-        offset?: { x: number; y: number };
-      },
-    ) {
-      return scrollToElement(locator, scrollOptions);
-    },
-
     // Enhanced Screenshots and Visual Testing
     async takeScreenshot(
       name: string,
@@ -217,15 +205,15 @@ export function createPageObject(page: Page, baseUrl: string, options: PageObjec
     ) {
       return takeTimestampedScreenshot(page, name, screenshotOptions);
     },
-
     async debugScreenshot(
       name: string,
       debugOptions?: {
+        path?: string;
         highlightElements?: Locator[];
-        annotations?: Array<{ locator: Locator; text: string }>;
+        annotations?: string[];
       },
     ) {
-      return debugScreenshot(page, name, debugOptions);
+      return _debugScreenshot(page, name, debugOptions);
     },
 
     async takeElementScreenshot(locator: Locator, name: string) {

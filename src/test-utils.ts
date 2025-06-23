@@ -33,7 +33,7 @@
  */
 export function testDispatcher<T extends { skip?: boolean; runOnly?: boolean }>(
   tests: T[],
-  options?: { shouldThrow?: boolean } = {},
+  options: { shouldThrow?: boolean } = {},
 ): T[] {
   const { shouldThrow = false } = options;
 
