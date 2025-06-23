@@ -11,6 +11,7 @@ export * from "./test-utils";
 export * from "./accessibility";
 export * from "./storage";
 export * from "./network";
+export * from "./network-monitoring";
 export * from "./dialogs";
 export * from "./tables";
 export * from "./page-objects";
