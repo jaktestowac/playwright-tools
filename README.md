@@ -732,7 +732,6 @@ _PS. For more resources and updates, follow us on our [website](https://jaktesto
 
 _Built with 💚❤️ for the Playwright and testing automation community_
 
-<!-- Badges for additional credibility -->
 <div align="center">
 
 [![GitHub stars](https://img.shields.io/github/stars/jaktestowac/playwright-tools.svg?style=social&label=Star)](https://github.com/jaktestowac/playwright-tools)
