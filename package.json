@@ -106,7 +106,8 @@
     "test": "vitest run",
     "npm:patch": "npm version patch",
     "npm:minor": "npm version minor",
-    "npm:publish": "npm publish --access public"
+    "npm:publish": "npm publish --access public",
+    "npm:publish:patch": "npm run npm:patch && npm run npm:publish"
   },
   "keywords": [
     "typescript",
