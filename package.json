@@ -1,0 +1,131 @@
+{
+  "name": "playwright-utils",
+  "version": "0.0.1",
+  "description": "A collection of utilities for Playwright testing",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./interactions": {
+      "types": "./dist/interactions.d.ts",
+      "import": "./dist/interactions.mjs",
+      "require": "./dist/interactions.js"
+    },
+    "./element-queries": {
+      "types": "./dist/element-queries.d.ts",
+      "import": "./dist/element-queries.mjs",
+      "require": "./dist/element-queries.js"
+    },
+    "./navigation": {
+      "types": "./dist/navigation.d.ts",
+      "import": "./dist/navigation.mjs",
+      "require": "./dist/navigation.js"
+    },
+    "./advanced-interactions": {
+      "types": "./dist/advanced-interactions.d.ts",
+      "import": "./dist/advanced-interactions.mjs",
+      "require": "./dist/advanced-interactions.js"
+    },
+    "./screenshots": {
+      "types": "./dist/screenshots.d.ts",
+      "import": "./dist/screenshots.mjs",
+      "require": "./dist/screenshots.js"
+    },
+    "./assertions": {
+      "types": "./dist/assertions.d.ts",
+      "import": "./dist/assertions.mjs",
+      "require": "./dist/assertions.js"
+    },
+    "./waiting": {
+      "types": "./dist/waiting.d.ts",
+      "import": "./dist/waiting.mjs",
+      "require": "./dist/waiting.js"
+    },
+    "./retry": {
+      "types": "./dist/retry.d.ts",
+      "import": "./dist/retry.mjs",
+      "require": "./dist/retry.js"
+    },
+    "./test-utils": {
+      "types": "./dist/test-utils.d.ts",
+      "import": "./dist/test-utils.mjs",
+      "require": "./dist/test-utils.js"
+    },
+    "./accessibility": {
+      "types": "./dist/accessibility.d.ts",
+      "import": "./dist/accessibility.mjs",
+      "require": "./dist/accessibility.js"
+    },
+    "./storage": {
+      "types": "./dist/storage.d.ts",
+      "import": "./dist/storage.mjs",
+      "require": "./dist/storage.js"
+    },
+    "./network": {
+      "types": "./dist/network.d.ts",
+      "import": "./dist/network.mjs",
+      "require": "./dist/network.js"
+    },
+    "./dialogs": {
+      "types": "./dist/dialogs.d.ts",
+      "import": "./dist/dialogs.mjs",
+      "require": "./dist/dialogs.js"
+    },
+    "./tables": {
+      "types": "./dist/tables.d.ts",
+      "import": "./dist/tables.mjs",
+      "require": "./dist/tables.js"
+    },
+    "./page-objects": {
+      "types": "./dist/page-objects.d.ts",
+      "import": "./dist/page-objects.mjs",
+      "require": "./dist/page-objects.js"
+    },
+    "./test-data": {
+      "types": "./dist/test-data.d.ts",
+      "import": "./dist/test-data.mjs",
+      "require": "./dist/test-data.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaktestowac/playwright-utils.git"
+  },
+  "homepage": "https://github.com/jaktestowac/playwright-utils",
+  "scripts": {
+    "build": "tsup",
+    "prepare": "tsup",
+    "test": "vitest run",
+    "npm:patch": "npm version patch",
+    "npm:minor": "npm version minor",
+    "npm:publish": "npm publish --access public"
+  },
+  "keywords": [
+    "typescript",
+    "automation",
+    "playwright",
+    "testing",
+    "utilities",
+    "test-utils"
+  ],
+  "author": "jaktestowac.pl",
+  "license": "MIT",
+  "peerDependencies": {
+    "@playwright/test": "^1.40.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "tsup": "^7.2.0",
+    "typescript": "^5.3.3",
+    "prettier": "3.5.3",
+    "vitest": "^3.1.2"
+  }
+}
