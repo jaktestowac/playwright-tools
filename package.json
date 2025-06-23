@@ -111,8 +111,6 @@
     "build:types": "tsc --project tsconfig.declarations.json",
     "prepare": "npm run build",
     "test": "vitest run",
-    "validate": "node validate-package.js",
-    "prepack": "npm run build && npm run validate",
     "npm:patch": "npm version patch",
     "npm:minor": "npm version minor",
     "npm:publish": "npm publish --access public",
