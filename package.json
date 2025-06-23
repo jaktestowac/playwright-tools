@@ -1,7 +1,7 @@
 {
   "name": "playwright-tools",
   "version": "0.0.2",
-  "description": "A collection of utilities for Playwright testing",
+  "description": "🎭 A collection of utilities for Playwright TypeScript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
