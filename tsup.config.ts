@@ -15,6 +15,7 @@ export default defineConfig({
     "src/accessibility.ts",
     "src/storage.ts",
     "src/network.ts",
+    "src/network-monitoring.ts",
     "src/dialogs.ts",
     "src/tables.ts",
     "src/page-objects.ts",
