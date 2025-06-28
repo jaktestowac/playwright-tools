@@ -1,4 +1,4 @@
-import { Page, expect } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
 /**
  * Safely navigate to a URL and wait for the page to be ready for interaction.
@@ -10,6 +10,7 @@ import { Page, expect } from "@playwright/test";
  * @param options.timeout - Maximum time to wait for navigation (in milliseconds)
  * @param options.waitUntil - When to consider navigation complete (default: 'networkidle')
  * @param options.expectedUrlPattern - Pattern to match the final URL against
+ * @param expect - The Playwright expect function (optional, for URL validation)
  * @returns Promise that resolves when navigation is complete
  *
  * @example
@@ -17,7 +18,7 @@ import { Page, expect } from "@playwright/test";
  * await safeNavigate(page, '/dashboard', {
  *   expectedUrlPattern: /\/dashboard/,
  *   timeout: 10000
- * });
+ * }, expect);
  * ```
  */
 export async function safeNavigate(
@@ -28,11 +29,12 @@ export async function safeNavigate(
     waitUntil?: "load" | "domcontentloaded" | "networkidle" | "commit";
     expectedUrlPattern?: RegExp;
   },
+  expect?: any,
 ) {
   const waitUntil = options?.waitUntil || "networkidle";
   await page.goto(url, { waitUntil, timeout: options?.timeout });
 
-  if (options?.expectedUrlPattern) {
+  if (options?.expectedUrlPattern && expect) {
     expect(page.url()).toMatch(options.expectedUrlPattern);
   }
 }

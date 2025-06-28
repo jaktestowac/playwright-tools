@@ -1,4 +1,4 @@
-import { Page, Request, Response } from "@playwright/test";
+import type { Page, Request, Response } from "@playwright/test";
 import { 
   NetworkRequestData, 
   NetworkResponseData, 

@@ -1,4 +1,4 @@
-import { Locator } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 
 /**
  * Check accessibility properties of an element.

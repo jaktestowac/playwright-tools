@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import type { Page, Locator } from "@playwright/test";
 import { safeNavigate, waitForPageIdle } from "./navigation";
 import { takeTimestampedScreenshot, debugScreenshot as _debugScreenshot } from "./screenshots";
 import { measureTime, waitForTextInAnyElement, waitForAnyCondition } from "./waiting";
@@ -396,15 +396,6 @@ export function createPageObject(page: Page, baseUrl: string, options: PageObjec
       },
     ) {
       return extractTableData(tableLocator, tableOptions);
-    },
-
-    // Assertions and Expectations
-    async expectElementsVisible(locators: Locator[]) {
-      return expectElementsToBeVisible(locators);
-    },
-
-    async expectAll(expectations: (() => Promise<void>)[]) {
-      return expectAll(expectations);
     },
 
     // Utility Methods

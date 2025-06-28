@@ -1,4 +1,4 @@
-import { Locator } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 
 /**
  * Wait for specific text to appear in any of the provided locators.

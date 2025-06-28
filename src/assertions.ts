@@ -1,10 +1,11 @@
-import { Locator, expect } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 
 /**
  * Assert that multiple elements are visible sequentially.
  * Checks each element one by one, which can be useful for debugging individual failures.
  *
  * @param locators - Array of Playwright locators to check for visibility
+ * @param expect - The Playwright expect function
  * @returns Promise that resolves when all elements are confirmed visible
  * @throws AssertionError if any element is not visible
  *
@@ -15,10 +16,10 @@ import { Locator, expect } from "@playwright/test";
  *   page.getByRole('link', { name: 'About' }),
  *   page.getByRole('link', { name: 'Contact' })
  * ];
- * await expectElementsToBeVisible(navigationElements);
+ * await expectElementsToBeVisible(navigationElements, expect);
  * ```
  */
-export async function expectElementsToBeVisible(locators: Locator[]) {
+export async function expectElementsToBeVisible(locators: Locator[], expect: any) {
   for (const locator of locators) {
     await expect(locator).toBeVisible();
   }

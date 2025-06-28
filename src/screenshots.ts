@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import type { Page, Locator } from "@playwright/test";
 
 /**
  * Take a full-page screenshot with an ISO timestamp in the filename.

@@ -1,4 +1,4 @@
-import { Page, Locator, Request, Response } from "@playwright/test";
+import type { Page, Locator, Request, Response } from "@playwright/test";
 
 // Common option interfaces
 export interface TimeoutOptions {

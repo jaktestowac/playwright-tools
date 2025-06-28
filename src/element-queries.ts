@@ -1,4 +1,4 @@
-import { Locator } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 
 /**
  * Wait for multiple elements to be visible simultaneously using Promise.all.
