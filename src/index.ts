@@ -18,3 +18,4 @@ export * from "./test-data";
 export * from "./types";
 export * from "./error-handling";
 export * from "./performance";
+export * from "./locator-decorator";

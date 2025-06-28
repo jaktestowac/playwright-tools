@@ -52,9 +52,10 @@ export async function retryAction<T>(
     maxDelay?: number;
   },
 ): Promise<T> {
-  const maxRetries = options?.maxRetries || 5;
-  const baseDelay = options?.baseDelay || 1000;
-  const maxDelay = options?.maxDelay || 10000;
+  // Validate and sanitize options to prevent infinite loops
+  const maxRetries = Math.max(0, Math.min(options?.maxRetries || 5, 100)); // Cap at 100 to prevent excessive retries
+  const baseDelay = Math.max(0, Math.min(options?.baseDelay || 1000, 60000)); // Cap at 60 seconds
+  const maxDelay = Math.max(baseDelay, Math.min(options?.maxDelay || 10000, 300000)); // Cap at 5 minutes
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
@@ -64,10 +65,17 @@ export async function retryAction<T>(
         throw error;
       }
 
+      // Calculate delay with exponential backoff, capped at maxDelay
       const delay = Math.min(baseDelay * Math.pow(2, attempt), maxDelay);
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      
+      // Add a small random jitter to prevent thundering herd problems
+      const jitter = Math.random() * 100;
+      const totalDelay = delay + jitter;
+      
+      await new Promise((resolve) => setTimeout(resolve, totalDelay));
     }
   }
 
+  // This should never be reached due to the throw in the loop, but added for safety
   throw new Error("Retry action failed unexpectedly");
 }

@@ -143,19 +143,22 @@ export async function isElementEnabled(locator: Locator, options?: { timeout?: n
  * ```
  */
 export async function waitForVisibleWithRetry(locator: Locator, options?: { timeout?: number; retries?: number }) {
-  const retries = options?.retries || 3;
-  const timeout = options?.timeout || 30000;
-  const retryTimeout = Math.floor(timeout / retries);
+  // Validate and sanitize options to prevent infinite loops
+  const maxRetries = Math.max(0, Math.min(options?.retries || 3, 20)); // Cap at 20 retries
+  const maxTimeout = Math.max(1000, Math.min(options?.timeout || 30000, 300000)); // Cap at 5 minutes
+  const retryTimeout = Math.floor(maxTimeout / (maxRetries + 1)); // Ensure we don't exceed total timeout
 
-  for (let attempt = 0; attempt <= retries; attempt++) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       await locator.waitFor({ state: "visible", timeout: retryTimeout });
       return;
     } catch (error) {
-      if (attempt === retries) {
+      if (attempt === maxRetries) {
         throw error;
       }
-      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+      // Add exponential backoff with jitter to prevent thundering herd
+      const delay = Math.min(1000 * Math.pow(2, attempt), 5000) + Math.random() * 100;
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 }

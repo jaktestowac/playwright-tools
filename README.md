@@ -84,6 +84,7 @@ import * as pwUtils from "playwright-tools";
 - **[🔍 Element Queries](./docs/element-queries.md)** - Existence checks and bulk operations
 - **[🌐 Navigation](./docs/navigation.md)** - Safe navigation and page management
 - **[⌨️ Advanced Interactions](./docs/advanced-interactions.md)** - File uploads, drag & drop, keyboard shortcuts
+- **[🌐 Locator Decorator](./docs/locator-decorator.md)** - Extend Playwright locators with custom methods
 - **[📸 Screenshots](./docs/screenshots.md)** - Timestamped and debug screenshots
 - **[📋 Assertions](./docs/assertions.md)** - Enhanced assertion helpers
 - **[⏳ Waiting](./docs/waiting.md)** - Smart waiting strategies
@@ -167,6 +168,49 @@ const result = await retryAction(
   { maxRetries: 3, baseDelay: 1000 }
 );
 ```
+
+### Locator Decorator
+
+The **Locator Decorator** lets you extend Playwright locators with custom methods, enhanced safe interactions, and even method overrides. This makes your locators more powerful, reusable, and tailored to your app.
+
+### Key Features
+
+- Add your own methods to any locator
+- Use enhanced methods like `safeClick`, `safeFill`, `extractData`, and more
+- Override existing locator methods (e.g., custom `click`)
+- Factory and page extension patterns for consistent usage
+
+### Quick Example
+
+```typescript
+import { createEnhancedLocator, extendPage } from "playwright-tools";
+
+// Enhance a single locator
+const enhanced = createEnhancedLocator(page.locator("#my-btn"), {
+  customMethods: {
+    async highlight() {
+      await this.evaluate(el => el.style.border = "2px solid red");
+    }
+  }
+});
+await enhanced.safeClick();
+await enhanced.highlight();
+
+// Or extend the whole page for consistent usage
+const enhancedPage = extendPage(page, {
+  customMethods: {
+    async waitForAnimation() {
+      await this.waitForFunction(() => !document.querySelector('[style*="animation"]'));
+    }
+  }
+});
+const btn = enhancedPage.locator("#my-btn");
+await btn.safeClick();
+await btn.waitForAnimation();
+```
+
+**See the full documentation:**  
+[📖 Locator Decorator Guide](./docs/locator-decorator.md)
 
 ---
 

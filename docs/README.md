@@ -28,6 +28,7 @@ Welcome to the comprehensive documentation for `playwright-tools` - a powerful c
 - **[Performance](./performance.md)** - Performance measurement utilities
 - **[Error Handling](./error-handling.md)** - Error handling patterns
 - **[Test Utils](./test-utils.md)** - Test filtering and dispatching
+- **[Enhanced Locators](./locator-decorator.md)** - Enhanced locator methods
 
 ### Examples & Guides
 
@@ -124,4 +125,4 @@ Each module has its own dedicated documentation page with:
 
 **Happy testing! 🚀**
 
-_Built with 💚❤️ by the jaktestowac.pl team_ 
+_Built with 💚❤️ by the jaktestowac.pl team_

@@ -223,26 +223,31 @@ export const ERROR_RECOVERY = {
 
   /**
    * Attempts to recover from timeout errors with reduced timeout
+   * Prevents infinite loops by limiting retry attempts
    */
   async timeoutExceeded<T>(
     operation: () => Promise<T>,
     originalTimeout: number,
-    reducedTimeout?: number
+    reducedTimeout?: number,
+    maxRetries: number = 1
   ): Promise<T> {
-    try {
-      return await operation();
-    } catch (error) {
-      if (error instanceof PlaywrightToolsError && error.code === "TIMEOUT_EXCEEDED") {
-        if (reducedTimeout && reducedTimeout < originalTimeout) {
-          // Retry with reduced timeout
-          return await withErrorHandling(
-            () => operation(),
-            "TIMEOUT_EXCEEDED",
-            { originalTimeout, reducedTimeout }
-          );
+    let retryCount = 0;
+    
+    while (retryCount <= maxRetries) {
+      try {
+        return await operation();
+      } catch (error) {
+        if (error instanceof PlaywrightToolsError && error.code === "TIMEOUT_EXCEEDED") {
+          if (reducedTimeout && reducedTimeout < originalTimeout && retryCount < maxRetries) {
+            retryCount++;
+            // Use a simple retry without recursive withErrorHandling to prevent infinite loops
+            continue;
+          }
         }
+        throw error;
       }
-      throw error;
     }
+    
+    throw new Error(`Operation failed after ${maxRetries + 1} attempts`);
   },
 }; 

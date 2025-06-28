@@ -27,10 +27,12 @@ export async function waitForTextInAnyElement(
   text: string,
   options?: { timeout?: number },
 ): Promise<Locator> {
-  const timeout = options?.timeout || 30000;
+  // Validate and sanitize timeout to prevent infinite loops
+  const maxTimeout = Math.max(1000, Math.min(options?.timeout || 30000, 300000)); // Cap at 5 minutes
   const startTime = Date.now();
+  const pollInterval = 100; // Fixed polling interval
 
-  while (Date.now() - startTime < timeout) {
+  while (Date.now() - startTime < maxTimeout) {
     for (const locator of locators) {
       try {
         const content = await locator.textContent();
@@ -41,10 +43,10 @@ export async function waitForTextInAnyElement(
         // Continue checking other locators
       }
     }
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, pollInterval));
   }
 
-  throw new Error(`Text "${text}" not found in any of the provided elements within ${timeout}ms`);
+  throw new Error(`Text "${text}" not found in any of the provided elements within ${maxTimeout}ms`);
 }
 
 /**
@@ -79,13 +81,25 @@ export async function waitForAnyCondition(
       .then(() => index)
       .catch(() => {
         // Return a promise that never resolves so it doesn't interfere with the race
-        return new Promise<number>(() => {});
+        // This could potentially cause a memory leak if conditions keep failing
+        return new Promise<number>(() => {
+          // Empty executor - this promise will never resolve or reject
+        });
       }),
   );
 
   // Add a timeout promise that rejects
   const timeoutPromise = new Promise<never>((_, reject) => {
-    setTimeout(() => reject(new Error(`None of the conditions were met within ${timeout}ms`)), timeout);
+    const timeoutId = setTimeout(() => {
+      reject(new Error(`None of the conditions were met within ${timeout}ms`));
+    }, timeout);
+    
+    // Clean up timeout if any condition succeeds
+    Promise.race(promises).then(() => {
+      clearTimeout(timeoutId);
+    }).catch(() => {
+      // Ignore errors from individual conditions
+    });
   });
 
   return Promise.race([...promises, timeoutPromise]);
