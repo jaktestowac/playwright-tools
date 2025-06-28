@@ -1,4 +1,3 @@
-// Export all modular functions
 export * from "./interactions";
 export * from "./element-queries";
 export * from "./navigation";
@@ -16,3 +15,6 @@ export * from "./dialogs";
 export * from "./tables";
 export * from "./page-objects";
 export * from "./test-data";
+export * from "./types";
+export * from "./error-handling";
+export * from "./performance";

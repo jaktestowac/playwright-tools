@@ -19,22 +19,7 @@ import { waitForNetworkRequest } from "./network";
 import { handleDialog } from "./dialogs";
 import { extractTableData } from "./tables";
 import { pressKeyCombo, dragAndDrop, handleFileUpload } from "./advanced-interactions";
-
-export interface PageObjectOptions {
-  /** Default timeout for operations (default: 30000ms) */
-  defaultTimeout?: number;
-  /** Base URL for relative navigation */
-  baseUrl?: string;
-  /** Enable performance monitoring */
-  enablePerformanceMonitoring?: boolean;
-  /** Enable accessibility checking by default */
-  enableAccessibilityChecks?: boolean;
-}
-
-export interface FormField {
-  locator: Locator;
-  value: string;
-}
+import { FormField, PageObjectOptions } from "./types";
 
 export interface BulkElementOperation {
   locators: Locator[];

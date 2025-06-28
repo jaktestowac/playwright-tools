@@ -1,94 +1,11 @@
 import { Page, Request, Response } from "@playwright/test";
-
-export interface NetworkRequestData {
-  id: string;
-  timestamp: number;
-  url: string;
-  method: string;
-  headers: Record<string, string>;
-  postData?: string;
-  resourceType: string;
-  timing: {
-    startTime: number;
-    endTime?: number;
-    duration?: number;
-  };
-}
-
-export interface NetworkResponseData {
-  id: string;
-  timestamp: number;
-  url: string;
-  status: number;
-  statusText: string;
-  headers: Record<string, string>;
-  body?: string;
-  timing: {
-    responseTime: number;
-    duration: number;
-  };
-}
-
-export interface NetworkEvent {
-  id: string;
-  type: "request" | "response" | "requestfailed";
-  timestamp: number;
-  request?: NetworkRequestData;
-  response?: NetworkResponseData;
-  error?: string;
-}
-
-export interface NetworkMonitoringOptions {
-  /** Whether to capture request bodies */
-  captureRequestBodies?: boolean;
-  /** Whether to capture response bodies */
-  captureResponseBodies?: boolean;
-  /** Maximum size of bodies to capture (in bytes) */
-  maxBodySize?: number;
-  /** Filter URLs by pattern */
-  urlFilter?: RegExp | string;
-  /** Filter by HTTP methods */
-  methodFilter?: string[];
-  /** Filter by resource types */
-  resourceTypeFilter?: string[];
-  /** Whether to track performance metrics */
-  trackPerformance?: boolean;
-  /** Whether to automatically analyze slow requests */
-  analyzeSlowRequests?: boolean;
-  /** Threshold for slow requests in milliseconds */
-  slowRequestThreshold?: number;
-  /** Maximum number of events to store (prevents memory leaks) */
-  maxEvents?: number;
-  /** Error callback for handling monitoring errors */
-  onError?: (error: Error, context: string) => void;
-}
-
-export interface NetworkMonitoringReport {
-  summary: {
-    totalRequests: number;
-    totalResponses: number;
-    failedRequests: number;
-    averageResponseTime: number;
-    slowestRequest?: NetworkEvent;
-    fastestRequest?: NetworkEvent;
-    totalDataTransferred: number;
-    monitoringDuration: number;
-  };
-  requests: NetworkEvent[];
-  slowRequests: NetworkEvent[];
-  failedRequests: NetworkEvent[];
-  performanceMetrics: {
-    requestsPerSecond: number;
-    averageRequestSize: number;
-    averageResponseSize: number;
-    cacheHitRate?: number;
-  };
-  urlAnalysis: {
-    mostFrequentUrls: Array<{ url: string; count: number }>;
-    largestResponses: Array<{ url: string; size: number }>;
-    slowestEndpoints: Array<{ url: string; averageTime: number }>;
-  };
-}
+import { 
+  NetworkRequestData, 
+  NetworkResponseData, 
+  NetworkEvent, 
+  NetworkMonitoringOptions, 
+  NetworkMonitoringReport 
+} from "./types";
 
 /**
  * Advanced Network Monitoring utility for comprehensive network analysis.

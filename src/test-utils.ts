@@ -1,7 +1,4 @@
-export interface TestDispatcherOptions<T = any> {
-  shouldThrow?: boolean;
-  customFilter?: (test: T) => boolean;
-}
+import { TestDispatcherOptions } from "./types";
 
 /**
  * Filter and dispatch tests based on skip and runOnly flags.

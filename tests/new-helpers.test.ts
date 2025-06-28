@@ -1,4 +1,4 @@
-import { test, expect, describe, vi, beforeEach } from "vitest";
+import { test, expect, describe, vi, beforeEach, afterEach } from "vitest";
 import {
   safeNavigate,
   fillForm,
@@ -20,6 +20,20 @@ import {
   waitForPageIdle,
   createPageObject,
   createTestDataFactory,
+  PlaywrightToolsError,
+  ERROR_CODES,
+  createError,
+  withErrorHandling,
+  handleTimeoutError,
+  validateInput,
+  validateLocator,
+  validatePage,
+  createRetryableError,
+  isRetryableError,
+  formatErrorMessage,
+  logError,
+  ERROR_RECOVERY,
+  PerformanceMonitor,
 } from "../src/index";
 
 describe("Playwright Helpers - New Utility Functions", () => {
@@ -718,6 +732,398 @@ describe("Playwright Helpers - New Utility Functions", () => {
       expect(user.name).toBe("Custom Name");
       expect(user.age).toBe(30);
       expect(user.email).toMatch(/@example\.com$/); // Should still be generated
+    });
+  });
+});
+
+describe("PerformanceMonitor - exportData", () => {
+  test("should export performance data as JSON string", () => {
+    const monitor = new PerformanceMonitor();
+    // Record some metrics
+    monitor.measureSync(() => 42, "sync-op");
+    monitor.measureSync(() => 24, "sync-op");
+    // Record a failing operation
+    try {
+      monitor.measureSync(() => { throw new Error("fail"); }, "fail-op");
+    } catch (error) {
+      // Expected error, continue
+    }
+    
+    const json = monitor.exportData();
+    expect(typeof json).toBe("string");
+    const parsed = JSON.parse(json);
+    expect(parsed).toHaveProperty("timestamp");
+    expect(parsed).toHaveProperty("operations");
+    expect(parsed).toHaveProperty("summaries");
+    expect(parsed.operations["sync-op"].length).toBeGreaterThanOrEqual(2);
+    expect(parsed.summaries["sync-op"].count).toBeGreaterThanOrEqual(2);
+    expect(parsed.summaries["fail-op"].errorCount).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("Error Handling", () => {
+  let consoleSpy: any;
+
+  beforeEach(() => {
+    consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleSpy.mockRestore();
+  });
+
+  describe("PlaywrightToolsError", () => {
+    test("should create error with message, code, and context", () => {
+      const context = { element: "button", selector: "#submit" };
+      const error = new PlaywrightToolsError("Element not found", "ELEMENT_NOT_FOUND", context);
+      
+      expect(error.message).toBe("Element not found");
+      expect(error.code).toBe("ELEMENT_NOT_FOUND");
+      expect(error.context).toEqual(context);
+      expect(error.name).toBe("PlaywrightToolsError");
+      expect(error).toBeInstanceOf(Error);
+    });
+
+    test("should create error without context", () => {
+      const error = new PlaywrightToolsError("Simple error", "TIMEOUT_EXCEEDED");
+      
+      expect(error.message).toBe("Simple error");
+      expect(error.code).toBe("TIMEOUT_EXCEEDED");
+      expect(error.context).toEqual({});
+    });
+  });
+
+  describe("ERROR_CODES", () => {
+    test("should contain all expected error codes", () => {
+      expect(ERROR_CODES).toHaveProperty("ELEMENT_NOT_FOUND");
+      expect(ERROR_CODES).toHaveProperty("ELEMENT_NOT_VISIBLE");
+      expect(ERROR_CODES).toHaveProperty("ELEMENT_NOT_ENABLED");
+      expect(ERROR_CODES).toHaveProperty("NAVIGATION_FAILED");
+      expect(ERROR_CODES).toHaveProperty("NETWORK_REQUEST_FAILED");
+      expect(ERROR_CODES).toHaveProperty("SCREENSHOT_FAILED");
+      expect(ERROR_CODES).toHaveProperty("FILE_UPLOAD_FAILED");
+      expect(ERROR_CODES).toHaveProperty("DIALOG_HANDLING_FAILED");
+      expect(ERROR_CODES).toHaveProperty("STORAGE_OPERATION_FAILED");
+      expect(ERROR_CODES).toHaveProperty("RETRY_EXHAUSTED");
+      expect(ERROR_CODES).toHaveProperty("TIMEOUT_EXCEEDED");
+      expect(ERROR_CODES).toHaveProperty("INVALID_INPUT");
+      expect(ERROR_CODES).toHaveProperty("UNSUPPORTED_OPERATION");
+    });
+  });
+
+  describe("createError", () => {
+    test("should create PlaywrightToolsError with correct properties", () => {
+      const context = { test: "data" };
+      const error = createError("Test error", "ELEMENT_NOT_FOUND", context);
+      
+      expect(error).toBeInstanceOf(PlaywrightToolsError);
+      expect(error.message).toBe("Test error");
+      expect(error.code).toBe(ERROR_CODES.ELEMENT_NOT_FOUND);
+      expect(error.context).toEqual(context);
+    });
+
+    test("should create error without context", () => {
+      const error = createError("Test error", "TIMEOUT_EXCEEDED");
+      
+      expect(error.message).toBe("Test error");
+      expect(error.code).toBe(ERROR_CODES.TIMEOUT_EXCEEDED);
+      expect(error.context).toEqual({});
+    });
+  });
+
+  describe("withErrorHandling", () => {
+    test("should return result when operation succeeds", async () => {
+      const operation = vi.fn().mockResolvedValue("success");
+      
+      const result = await withErrorHandling(operation, "ELEMENT_NOT_FOUND");
+      
+      expect(result).toBe("success");
+      expect(operation).toHaveBeenCalledTimes(1);
+    });
+
+    test("should wrap error with context when operation fails", async () => {
+      const originalError = new Error("Original error");
+      const operation = vi.fn().mockRejectedValue(originalError);
+      const context = { element: "button" };
+      
+      await expect(withErrorHandling(operation, "ELEMENT_NOT_FOUND", context))
+        .rejects.toThrow(PlaywrightToolsError);
+      
+      try {
+        await withErrorHandling(operation, "ELEMENT_NOT_FOUND", context);
+      } catch (error) {
+        expect(error.message).toBe("Original error");
+        expect(error.code).toBe("ELEMENT_NOT_FOUND");
+        expect(error.context.element).toBe("button");
+        expect(error.context.originalError.name).toBe("Error");
+        expect(error.context.originalError.message).toBe("Original error");
+      }
+    });
+  });
+
+  describe("handleTimeoutError", () => {
+    test("should create timeout error with correct message and context", () => {
+      const context = { page: "dashboard" };
+      const error = handleTimeoutError("click", 5000, context);
+      
+      expect(error).toBeInstanceOf(PlaywrightToolsError);
+      expect(error.message).toBe('Operation "click" timed out after 5000ms');
+      expect(error.code).toBe("TIMEOUT_EXCEEDED");
+      expect(error.context.operation).toBe("click");
+      expect(error.context.timeout).toBe(5000);
+      expect(error.context.page).toBe("dashboard");
+    });
+  });
+
+  describe("validateInput", () => {
+    test("should not throw for valid required input", () => {
+      expect(() => validateInput("test", "name", "string")).not.toThrow();
+      expect(() => validateInput(42, "age", "number")).not.toThrow();
+      expect(() => validateInput(true, "flag", "boolean")).not.toThrow();
+    });
+
+    test("should throw for missing required input", () => {
+      expect(() => validateInput(undefined, "name", "string"))
+        .toThrow(PlaywrightToolsError);
+      expect(() => validateInput(null, "age", "number"))
+        .toThrow(PlaywrightToolsError);
+    });
+
+    test("should not throw for optional null/undefined input", () => {
+      expect(() => validateInput(undefined, "name", "string", false)).not.toThrow();
+      expect(() => validateInput(null, "age", "number", false)).not.toThrow();
+    });
+
+    test("should throw for type mismatch", () => {
+      expect(() => validateInput("string", "number", "number"))
+        .toThrow(PlaywrightToolsError);
+      expect(() => validateInput(42, "string", "string"))
+        .toThrow(PlaywrightToolsError);
+    });
+  });
+
+  describe("validateLocator", () => {
+    test("should not throw for valid locator", () => {
+      const validLocator = { click: vi.fn() };
+      
+      expect(() => validateLocator(validLocator)).not.toThrow();
+    });
+
+    test("should throw for invalid locator", () => {
+      expect(() => validateLocator(null))
+        .toThrow(PlaywrightToolsError);
+      expect(() => validateLocator(undefined))
+        .toThrow(PlaywrightToolsError);
+      expect(() => validateLocator({}))
+        .toThrow(PlaywrightToolsError);
+      expect(() => validateLocator({ otherMethod: vi.fn() }))
+        .toThrow(PlaywrightToolsError);
+    });
+
+    test("should use custom parameter name in error", () => {
+      try {
+        validateLocator(null, "customName");
+      } catch (error) {
+        expect(error.context.parameter).toBe("customName");
+      }
+    });
+  });
+
+  describe("validatePage", () => {
+    test("should not throw for valid page", () => {
+      const validPage = { goto: vi.fn() };
+      
+      expect(() => validatePage(validPage)).not.toThrow();
+    });
+
+    test("should throw for invalid page", () => {
+      expect(() => validatePage(null))
+        .toThrow(PlaywrightToolsError);
+      expect(() => validatePage(undefined))
+        .toThrow(PlaywrightToolsError);
+      expect(() => validatePage({}))
+        .toThrow(PlaywrightToolsError);
+      expect(() => validatePage({ otherMethod: vi.fn() }))
+        .toThrow(PlaywrightToolsError);
+    });
+
+    test("should use custom parameter name in error", () => {
+      try {
+        validatePage(null, "customPage");
+      } catch (error) {
+        expect(error.context.parameter).toBe("customPage");
+      }
+    });
+  });
+
+  describe("createRetryableError", () => {
+    test("should create retryable error with correct properties", () => {
+      const context = { attempt: 3 };
+      const error = createRetryableError("Retry failed", context);
+      
+      expect(error).toBeInstanceOf(PlaywrightToolsError);
+      expect(error.message).toBe("Retry failed");
+      expect(error.code).toBe("RETRY_EXHAUSTED");
+      expect(error.context.retryable).toBe(true);
+      expect(error.context.attempt).toBe(3);
+    });
+  });
+
+  describe("isRetryableError", () => {
+    test("should return true for timeout errors", () => {
+      const timeoutError = createError("Timeout", "TIMEOUT_EXCEEDED");
+      
+      expect(isRetryableError(timeoutError)).toBe(true);
+    });
+
+    test("should return true for errors with retryable flag", () => {
+      const retryableError = createRetryableError("Retry failed");
+      
+      expect(isRetryableError(retryableError)).toBe(true);
+    });
+
+    test("should return false for non-retryable errors", () => {
+      const regularError = createError("Regular error", "ELEMENT_NOT_FOUND");
+      
+      expect(isRetryableError(regularError)).toBe(false);
+    });
+
+    test("should return false for non-PlaywrightToolsError", () => {
+      const regularError = new Error("Regular error");
+      
+      expect(isRetryableError(regularError)).toBe(false);
+    });
+  });
+
+  describe("formatErrorMessage", () => {
+    test("should format error with code and message", () => {
+      const error = createError("Test error", "ELEMENT_NOT_FOUND");
+      const formatted = formatErrorMessage(error);
+      
+      expect(formatted).toContain("[ELEMENT_NOT_FOUND] Test error");
+    });
+
+    test("should include context in formatted message", () => {
+      const error = createError("Test error", "ELEMENT_NOT_FOUND", { element: "button" });
+      const formatted = formatErrorMessage(error);
+      
+      expect(formatted).toContain("[ELEMENT_NOT_FOUND] Test error");
+      expect(formatted).toContain('"element": "button"');
+    });
+
+    test("should handle error without context", () => {
+      const error = createError("Test error", "TIMEOUT_EXCEEDED");
+      const formatted = formatErrorMessage(error);
+      
+      expect(formatted).toBe("[TIMEOUT_EXCEEDED] Test error");
+    });
+  });
+
+  describe("logError", () => {
+    test("should log error with structured data", () => {
+      const error = createError("Test error", "ELEMENT_NOT_FOUND", { element: "button" });
+      
+      logError(error, "testOperation");
+      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "PlaywrightTools Error:",
+        expect.stringContaining("testOperation")
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "PlaywrightTools Error:",
+        expect.stringContaining("ELEMENT_NOT_FOUND")
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "PlaywrightTools Error:",
+        expect.stringContaining("Test error")
+      );
+    });
+
+    test("should log error without operation", () => {
+      const error = createError("Test error", "TIMEOUT_EXCEEDED");
+      
+      logError(error);
+      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "PlaywrightTools Error:",
+        expect.stringContaining("TIMEOUT_EXCEEDED")
+      );
+    });
+  });
+
+  describe("ERROR_RECOVERY", () => {
+    describe("elementNotFound", () => {
+      test("should return result when operation succeeds", async () => {
+        const operation = vi.fn().mockResolvedValue("success");
+        
+        const result = await ERROR_RECOVERY.elementNotFound(operation);
+        
+        expect(result).toBe("success");
+        expect(operation).toHaveBeenCalledTimes(1);
+      });
+
+      test("should call fallback when element not found error occurs", async () => {
+        const operation = vi.fn().mockRejectedValue(createError("Not found", "ELEMENT_NOT_FOUND"));
+        const fallback = vi.fn().mockResolvedValue("fallback result");
+        
+        const result = await ERROR_RECOVERY.elementNotFound(operation, fallback);
+        
+        expect(result).toBe("fallback result");
+        expect(operation).toHaveBeenCalledTimes(1);
+        expect(fallback).toHaveBeenCalledTimes(1);
+      });
+
+      test("should throw error when fallback is not provided", async () => {
+        const operation = vi.fn().mockRejectedValue(createError("Not found", "ELEMENT_NOT_FOUND"));
+        
+        await expect(ERROR_RECOVERY.elementNotFound(operation))
+          .rejects.toThrow(PlaywrightToolsError);
+      });
+
+      test("should throw non-element-not-found errors", async () => {
+        const operation = vi.fn().mockRejectedValue(createError("Other error", "TIMEOUT_EXCEEDED"));
+        const fallback = vi.fn().mockResolvedValue("fallback result");
+        
+        await expect(ERROR_RECOVERY.elementNotFound(operation, fallback))
+          .rejects.toThrow(PlaywrightToolsError);
+        expect(fallback).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("timeoutExceeded", () => {
+      test("should return result when operation succeeds", async () => {
+        const operation = vi.fn().mockResolvedValue("success");
+        
+        const result = await ERROR_RECOVERY.timeoutExceeded(operation, 5000);
+        
+        expect(result).toBe("success");
+        expect(operation).toHaveBeenCalledTimes(1);
+      });
+
+      test("should retry with reduced timeout when timeout error occurs", async () => {
+        const operation = vi.fn()
+          .mockRejectedValueOnce(createError("Timeout", "TIMEOUT_EXCEEDED"))
+          .mockResolvedValueOnce("success");
+        
+        const result = await ERROR_RECOVERY.timeoutExceeded(operation, 5000, 2000);
+        
+        expect(result).toBe("success");
+        expect(operation).toHaveBeenCalledTimes(2);
+      });
+
+      test("should throw error when reduced timeout is not provided", async () => {
+        const operation = vi.fn().mockRejectedValue(createError("Timeout", "TIMEOUT_EXCEEDED"));
+        
+        await expect(ERROR_RECOVERY.timeoutExceeded(operation, 5000))
+          .rejects.toThrow(PlaywrightToolsError);
+      });
+
+      test("should throw non-timeout errors", async () => {
+        const operation = vi.fn().mockRejectedValue(createError("Other error", "ELEMENT_NOT_FOUND"));
+        
+        await expect(ERROR_RECOVERY.timeoutExceeded(operation, 5000, 2000))
+          .rejects.toThrow(PlaywrightToolsError);
+      });
     });
   });
 });
