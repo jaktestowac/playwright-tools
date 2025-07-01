@@ -1,15 +1,5 @@
 import type { Locator, expect as ExpectType } from "@playwright/test";
-
-/**
- * Options for assertion functions
- */
-export interface AssertionOptions {
-  /** Whether to use soft assertions (continue on failure) */
-  soft?: boolean;
-  timeout?: number;
-  /** Whether to run assertions concurrently for better performance */
-  concurrent?: boolean;
-}
+import { AssertionOptions } from "./types";
 
 /**
  * Type for the Playwright expect function

@@ -134,10 +134,16 @@ export interface PageObjectOptions {
   enableAccessibilityChecks?: boolean;
 }
 
-// Assertion options
+/**
+ * Options for assertion functions
+ */
 export interface AssertionOptions extends TimeoutOptions {
   message?: string;
+  /** Whether to use soft assertions (continue on failure) */
   soft?: boolean;
+  timeout?: number;
+  /** Whether to run assertions concurrently for better performance */
+  concurrent?: boolean;
 }
 
 // Dialog handling options
@@ -300,4 +306,4 @@ export interface BulkResult<T> {
   successful: number;
   failed: number;
   total: number;
-} 
+}
