@@ -19,7 +19,6 @@ import {
   scrollToElement,
   waitForPageIdle,
   createPageObject,
-  createTestDataFactory,
   PlaywrightToolsError,
   ERROR_CODES,
   createError,
@@ -647,91 +646,6 @@ describe("Playwright Helpers - New Utility Functions", () => {
       expect(typeof pageObject.getPageTitle).toBe("function");
       expect(typeof pageObject.scrollToTop).toBe("function");
       expect(typeof pageObject.scrollToBottom).toBe("function");
-    });
-  });
-
-  describe("createTestDataFactory", () => {
-    test("should create data factory with user data", () => {
-      const factory = createTestDataFactory();
-      const user = factory.user();
-
-      expect(user).toHaveProperty("name");
-      expect(user).toHaveProperty("email");
-      expect(user).toHaveProperty("age");
-      expect(user.email).toMatch(/@example\.com$/);
-    });
-
-    test("should generate unique emails", () => {
-      const factory = createTestDataFactory();
-      const email1 = factory.email();
-      const email2 = factory.email("custom");
-
-      expect(email1).toMatch(/^test\d+@example\.com$/);
-      expect(email2).toMatch(/^custom\d+@example\.com$/);
-    });
-
-    test("should create login form data", () => {
-      const factory = createTestDataFactory();
-      const loginData = factory.loginForm();
-
-      expect(loginData).toHaveProperty("username");
-      expect(loginData).toHaveProperty("password");
-      expect(loginData.username).toMatch(/@example\.com$/);
-      expect(loginData.password).toMatch(/^TestPass\d+!$/);
-    });
-
-    test("should generate addresses", () => {
-      const factory = createTestDataFactory();
-      const address = factory.address();
-
-      expect(address).toHaveProperty("street");
-      expect(address).toHaveProperty("city");
-      expect(address).toHaveProperty("state");
-      expect(address).toHaveProperty("zip");
-    });
-
-    test("should generate credit card data", () => {
-      const factory = createTestDataFactory();
-      const card = factory.creditCard();
-
-      expect(card).toHaveProperty("number");
-      expect(card).toHaveProperty("expiry");
-      expect(card).toHaveProperty("cvv");
-      expect(card).toHaveProperty("name");
-      expect(card.number).toBe("4111 1111 1111 1111");
-    });
-
-    test("should generate dates", () => {
-      const factory = createTestDataFactory();
-      const futureDate = factory.futureDate(7);
-      const pastDate = factory.pastDate(7);
-
-      expect(futureDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(pastDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    });
-
-    test("should generate random strings", () => {
-      const factory = createTestDataFactory();
-      const randomStr = factory.randomString(10);
-
-      expect(randomStr).toHaveLength(10);
-      expect(randomStr).toMatch(/^[A-Za-z0-9]+$/);
-    });
-
-    test("should generate URLs with base URL", () => {
-      const factory = createTestDataFactory({ baseUrl: "https://test.com" });
-      const url = factory.url("/page");
-
-      expect(url).toMatch(/^https:\/\/test\.com\/page\?t=\d+$/);
-    });
-
-    test("should allow data overrides", () => {
-      const factory = createTestDataFactory();
-      const user = factory.user({ name: "Custom Name", age: 30 });
-
-      expect(user.name).toBe("Custom Name");
-      expect(user.age).toBe(30);
-      expect(user.email).toMatch(/@example\.com$/); // Should still be generated
     });
   });
 });

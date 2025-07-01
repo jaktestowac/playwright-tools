@@ -96,7 +96,6 @@ import * as pwUtils from "playwright-tools";
 - **[💬 Dialogs](./docs/dialogs.md)** - Modal and popup handling
 - **[📊 Tables](./docs/tables.md)** - Table data extraction and validation
 - **[🔧 Page Objects](./docs/page-objects.md)** - Reusable page object patterns
-- **[📝 Test Data](./docs/test-data.md)** - Test data generation factories
 - **[⚡ Performance](./docs/performance.md)** - Performance measurement utilities
 - **[🛠️ Error Handling](./docs/error-handling.md)** - Error handling patterns
 - **[⚡ Test Utils](./docs/test-utils.md)** - Test filtering and dispatching

@@ -92,11 +92,6 @@
       "import": "./dist/page-objects.mjs",
       "require": "./dist/page-objects.js"
     },
-    "./test-data": {
-      "types": "./dist/test-data.d.ts",
-      "import": "./dist/test-data.mjs",
-      "require": "./dist/test-data.js"
-    },
     "./types": {
       "types": "./dist/types.d.ts",
       "import": "./dist/types.mjs",
@@ -147,7 +142,6 @@
     "test-utils"
   ],
   "author": "jaktestowac.pl",
-  "license": "MIT",
   "peerDependencies": {
     "@playwright/test": "1.x"
   },

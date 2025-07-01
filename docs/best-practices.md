@@ -249,47 +249,6 @@ test("Debug complex interaction", async ({ page }) => {
 });
 ```
 
-## 🔄 Test Data Management
-
-### Consistent Test Data
-
-```typescript
-import { createTestDataFactory } from "playwright-tools/test-data";
-
-const dataFactory = createTestDataFactory();
-
-test("User registration", async ({ page }) => {
-  const userData = dataFactory.user({
-    name: "Test User",
-    email: "test@example.com",
-  });
-  
-  await fillForm([
-    { locator: page.locator("#name"), value: userData.name },
-    { locator: page.locator("#email"), value: userData.email },
-  ]);
-});
-```
-
-### Data Cleanup
-
-```typescript
-test("Create and cleanup test data", async ({ page }) => {
-  const testUser = dataFactory.user();
-  
-  // Create test data
-  await createUser(testUser);
-  
-  try {
-    // Run test
-    await testUserFlow(page, testUser);
-  } finally {
-    // Cleanup test data
-    await deleteUser(testUser.email);
-  }
-});
-```
-
 ## 🌐 Network Monitoring
 
 ### API Performance Testing

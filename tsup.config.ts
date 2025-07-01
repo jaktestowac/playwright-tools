@@ -19,7 +19,6 @@ export default defineConfig({
     "src/dialogs.ts",
     "src/tables.ts",
     "src/page-objects.ts",
-    "src/test-data.ts",
     "src/types.ts",
     "src/error-handling.ts",
     "src/performance.ts",
