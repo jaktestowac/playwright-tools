@@ -28,7 +28,7 @@ export async function waitForTextInAnyElement(
   options?: { timeout?: number },
 ): Promise<Locator> {
   // Validate and sanitize timeout to prevent infinite loops
-  const maxTimeout = Math.max(1000, Math.min(options?.timeout || 30000, 300000)); // Cap at 5 minutes
+  const maxTimeout = Math.max(10, Math.min(options?.timeout || 30000, 300000)); // Cap at 5 minutes
   const startTime = Date.now();
   const pollInterval = 100; // Fixed polling interval
 

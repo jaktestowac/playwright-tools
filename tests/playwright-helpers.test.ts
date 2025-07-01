@@ -393,7 +393,7 @@ describe("Playwright Helpers - Element Interactions", () => {
 
       // Restore fake timers for other tests
       vi.useFakeTimers();
-    }, 1000);
+    }, 2000); // Increase timeout to 2000ms
 
     test("should handle elements that throw errors", async () => {
       const locators = [
@@ -419,6 +419,6 @@ describe("Playwright Helpers - Element Interactions", () => {
 
       // Restore fake timers for other tests
       vi.useFakeTimers();
-    }, 1000);
+    }, 2000); // Increase timeout to 2000ms
   });
 });

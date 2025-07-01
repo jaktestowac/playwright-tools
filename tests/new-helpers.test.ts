@@ -97,11 +97,18 @@ describe("Playwright Helpers - New Utility Functions", () => {
     });
 
     test("should validate URL pattern when provided", async () => {
+      const mockToMatch = vi.fn();
+      const mockExpect = vi.fn(() => ({
+        toMatch: mockToMatch
+      }));
+      
       await safeNavigate(mockPage, "/dashboard", {
         expectedUrlPattern: /\/dashboard/,
-      });
+      }, mockExpect);
 
       expect(mockPage.url).toHaveBeenCalled();
+      expect(mockExpect).toHaveBeenCalledWith("https://example.com/dashboard");
+      expect(mockToMatch).toHaveBeenCalledWith(/\/dashboard/);
     });
 
     test("should use custom wait condition and timeout", async () => {
