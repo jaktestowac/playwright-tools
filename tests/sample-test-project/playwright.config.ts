@@ -6,6 +6,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
+  timeout: 5 * 1000, // Default timeout for each test
   reporter: [
     ["html", { open: "never" }], // Generates an HTML report
     ["list"], // Outputs a list of test results in the console
