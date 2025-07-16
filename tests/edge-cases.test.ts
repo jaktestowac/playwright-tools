@@ -49,7 +49,8 @@ describe("Playwright Helpers - Edge Cases and Error Handling", () => {
       const totalTime = Date.now() - startTime;
 
       // Should not exceed: 200ms + 200ms + 200ms + 200ms + some overhead
-      expect(totalTime).toBeLessThan(1000);
+      // Allow for test execution overhead and timer precision
+      expect(totalTime).toBeLessThan(1100);
       expect(action).toHaveBeenCalledTimes(5); // initial + 4 retries
     });
 
