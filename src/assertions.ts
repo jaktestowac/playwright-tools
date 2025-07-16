@@ -73,20 +73,34 @@ export async function expectElementsToBeVisible(
  * More efficient than sequential assertions when the order doesn't matter.
  * All assertions will be executed simultaneously, but if any fail, you'll get the first failure.
  *
- * @param expectations - Array of async functions that return expect assertions
+ * @param expectations - Array of async functions that return expect assertions OR array of Promise<void>
  * @returns Promise that resolves when all expectations pass
  * @throws AssertionError if any expectation fails
  *
  * @example
  * ```typescript
+ * // Using function array
  * await expectAll([
  *   () => expect(page.getByText('Welcome')).toBeVisible(),
  *   () => expect(page.getByRole('button', { name: 'Login' })).toBeEnabled(),
- *   () => expect(page.locator('.header')).toHaveClass(/active/),
- *   () => expect(page.getByLabel('Username')).toHaveValue('john.doe')
+ * ]);
+ * 
+ * // Using promise array
+ * await expectAll([
+ *   expect(page.getByText('Welcome')).toBeVisible(),
+ *   expect(page.getByRole('button', { name: 'Login' })).toBeEnabled()
  * ]);
  * ```
  */
-export async function expectAll(expectations: (() => Promise<void>)[]): Promise<void> {
-    await Promise.all(expectations.map((expectation) => expectation()));
+export async function expectAll(expectations: (() => Promise<void>)[]): Promise<void>;
+export async function expectAll(assertions: Promise<void>[]): Promise<void>;
+export async function expectAll(input: (() => Promise<void>)[] | Promise<void>[]): Promise<void> {
+  if (input.length === 0) return;
+  
+  // If first element is a function, treat as function array
+  if (typeof input[0] === 'function') {
+    await Promise.all((input as (() => Promise<void>)[]).map(fn => fn()));
+  } else {
+    await Promise.all(input as Promise<void>[]);
+  }
 }
