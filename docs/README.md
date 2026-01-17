@@ -24,6 +24,7 @@ Welcome to the comprehensive documentation for `playwright-tools` - a powerful c
 - **[Dialogs](./dialogs.md)** - Modal and popup handling
 - **[Tables](./tables.md)** - Table data extraction and validation
 - **[Page Objects](./page-objects.md)** - Reusable page object patterns
+- **[Components](./components.md)** - Component factory examples (combobox with grid)
 - **[Performance](./performance.md)** - Performance measurement utilities
 - **[Error Handling](./error-handling.md)** - Error handling patterns
 - **[Test Utils](./test-utils.md)** - Test filtering and dispatching

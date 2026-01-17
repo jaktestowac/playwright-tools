@@ -21,6 +21,18 @@ import { extractTableData } from "./tables";
 import { pressKeyCombo, dragAndDrop, handleFileUpload } from "./advanced-interactions";
 import { FormField, PageObjectOptions } from "./types";
 
+export type PageObject = ReturnType<typeof createPageObject>;
+
+export interface WithComponentsOptions {
+  /**
+   * When true, the components factory runs on first access of `page.components`.
+   * The result is cached.
+   */
+  lazy?: boolean;
+}
+
+export type ComponentsFactory<TComponents extends object> = (pageObject: PageObject) => TComponents;
+
 export interface BulkElementOperation {
   locators: Locator[];
   timeout?: number;
@@ -510,4 +522,56 @@ export function createPageObject(page: Page, baseUrl: string, options: PageObjec
       return Object.assign(this, extensions);
     },
   };
+}
+
+/**
+ * Attach a `components` property to an existing page object.
+ *
+ * This is useful for composing page objects out of smaller, reusable component factories.
+ *
+ * @example
+ * ```ts
+ * const page = createPageObject(pwPage, "/login");
+ * const login = withComponents(page, (p) => ({
+ *   email: createTextInput(p.page, p.getByTestId("email")),
+ *   password: createTextInput(p.page, p.getByTestId("password")),
+ * }));
+ *
+ * await login.components.email.fill("user@example.com");
+ * ```
+ */
+export function withComponents<TComponents extends object>(
+  pageObject: PageObject,
+  factory: ComponentsFactory<TComponents>,
+  options: WithComponentsOptions = {},
+): PageObject & { components: TComponents } {
+  if (options.lazy) {
+    let cached: TComponents | undefined;
+    Object.defineProperty(pageObject, "components", {
+      enumerable: true,
+      configurable: true,
+      get() {
+        if (!cached) cached = factory(pageObject);
+        return cached;
+      },
+    });
+    return pageObject as PageObject & { components: TComponents };
+  }
+
+  const components = factory(pageObject);
+  return pageObject.extend({ components }) as PageObject & { components: TComponents };
+}
+
+/**
+ * Convenience factory: create a page object and attach `components`.
+ */
+export function createPageObjectWithComponents<TComponents extends object>(
+  page: Page,
+  baseUrl: string,
+  options: PageObjectOptions,
+  factory: ComponentsFactory<TComponents>,
+  withComponentsOptions: WithComponentsOptions = {},
+): PageObject & { components: TComponents } {
+  const pageObject = createPageObject(page, baseUrl, options);
+  return withComponents(pageObject, factory, withComponentsOptions);
 }

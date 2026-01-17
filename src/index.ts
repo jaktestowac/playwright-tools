@@ -14,6 +14,7 @@ export * from "./network-monitoring";
 export * from "./dialogs";
 export * from "./tables";
 export * from "./page-objects";
+export * from "./components";
 export * from "./types";
 export * from "./error-handling";
 export * from "./performance";

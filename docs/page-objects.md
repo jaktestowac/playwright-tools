@@ -8,34 +8,90 @@ Page objects help organize your test code by encapsulating page-specific functio
 
 ## Key Features
 
-- **Base Page Class** - Common functionality for all page objects
-- **Element Locator Management** - Centralized locator definitions
-- **Action Methods** - Reusable interaction patterns
-- **Validation Helpers** - Page state verification methods
+- **Factory-based page objects** - Plain objects (no inheritance required)
+- **Navigation + waiting helpers** - `navigate()`, `waitForReady()`, `reload()`, etc.
+- **Safe interactions** - `safeClick()`, `safeFill()`, `fillForm()`
+- **Utilities** - screenshots, network waits, accessibility checks, retries
+- **Composable extensions** - add your own methods/fields via `.extend()`
 
 ## Basic Usage
 
 ```typescript
-import { BasePage } from "playwright-tools/page-objects";
+import { createPageObject } from "playwright-tools";
 
-class LoginPage extends BasePage {
-  private selectors = {
-    usernameInput: '[data-testid="username"]',
-    passwordInput: '[data-testid="password"]',
-    loginButton: '[data-testid="login-button"]',
-    errorMessage: '.error-message'
-  };
+export function createLoginPage(page: import("@playwright/test").Page) {
+  const p = createPageObject(page, "/login", {
+    defaultTimeout: 10_000,
+  });
 
-  async login(username: string, password: string) {
-    await this.page.fill(this.selectors.usernameInput, username);
-    await this.page.fill(this.selectors.passwordInput, password);
-    await this.page.click(this.selectors.loginButton);
-  }
+  return p.extend({
+    async login(username: string, password: string) {
+      await p.navigate();
+      await p.waitForReady();
 
-  async getErrorMessage() {
-    return await this.page.textContent(this.selectors.errorMessage);
-  }
+      await p.safeFill(p.getByTestId("username"), username);
+      await p.safeFill(p.getByTestId("password"), password);
+      await p.safeClick(p.getByTestId("login-button"));
+    },
+
+    errorMessage() {
+      return p.locator(".error-message");
+    },
+  });
 }
+```
+
+## Composing components into a page object
+
+If you use the `components` factories (e.g. `createTextInput`, `createDropdown`, etc.) you can attach them to a page object in a consistent way.
+
+### Option A: add a `components` property (recommended)
+
+```ts
+import { createPageObject, withComponents, createTextInput, createCheckbox } from "playwright-tools";
+
+export function createSettingsPage(page: import("@playwright/test").Page) {
+  const p = createPageObject(page, "/settings");
+
+  return withComponents(p, (po) => ({
+    email: createTextInput(po.page, po.getByTestId("email")),
+    marketingOptIn: createCheckbox(po.page, po.getByTestId("marketing")),
+  }));
+}
+
+// usage
+// const settings = createSettingsPage(page)
+// await settings.components.email.fill("user@example.com")
+// await settings.components.marketingOptIn.check()
+```
+
+### Option B: one-shot factory
+
+```ts
+import { createPageObjectWithComponents, createTextInput } from "playwright-tools";
+
+const p = createPageObjectWithComponents(page, "/login", {}, (po) => ({
+  username: createTextInput(po.page, po.getByLabel("Username")),
+  password: createTextInput(po.page, po.getByLabel("Password")),
+}));
+
+await p.components.username.fill("john.doe");
+```
+
+### Lazy components
+
+If you want components created only when first used:
+
+```ts
+import { withComponents } from "playwright-tools";
+
+const p = withComponents(
+  createPageObject(page, "/whatever"),
+  (po) => ({
+    // ...create components here
+  }),
+  { lazy: true },
+);
 ```
 
 ## Best Practices
